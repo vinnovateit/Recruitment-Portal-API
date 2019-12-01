@@ -1,0 +1,27 @@
+version: "2"
+services:
+  # web:
+  #   build: .
+  #   ports:
+  #     - "8040:8040"
+  #   depends_on:
+  #     -  mongo
+  mongo:
+    container_name: mongo-viit
+    image: 'mongo:latest'
+    command: mongod --port 27018
+    ports:
+      - "27018:27018"
+
+  mongo-express:
+      image: mongo-express
+      environment:
+        - ME_CONFIG_BASICAUTH_USERNAME=admin@viit
+        - ME_CONFIG_BASICAUTH_PASSWORD=viit231
+        - ME_CONFIG_MONGODB_PORT= 27018
+      ports:
+        - 8089:8081
+      links:
+        - mongo
+
+
