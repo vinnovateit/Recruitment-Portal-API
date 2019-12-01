@@ -1,94 +1,154 @@
-var express=require('express');
-var app=express();
-var mongoose=require('mongoose');
-var body=require('body-parser');
-mongoose.connect("mongodb://localhost/portalDB",{useUnifiedTopology:true,useNewUrlParser:true});
-var db=mongoose.connection;
-db.once("open",function(){
-    console.log("Database Connected!");
-});
-db.on('error',console.error.bind(console,"Connection Error:"));
+var express = require('express');
+var app = express();
+var mongoose = require('mongoose');
+var body = require('body-parser');
+const User = require("./Schema/user");
 
-app.use(body.urlencoded({extended:true}));
-
-var candidateSchema=new mongoose.Schema({
-    
-    reg:String,
-    name:String,
-    pass:String,
-    email:String,
-    mob:Number,
-    branch:String,
-    gender:String,
-    dob:String
-});
-var Candidate=new mongoose.model("Candidate",candidateSchema);
-// var reg,name,pass,email,mob,branch,gender,dob;
-var candidateInfo,loginInfo;
-app.get("/",function(req,res){
-    res.send("Main Page");
-});
-app.get('/register',function(req,res){
-    res.render('signup.ejs');
-});
-app.get('/login',function(req,res){
-    res.render('login.ejs');
-});
-app.post('/info',function(req,res){       
-
-    candidateInfo={
-        reg:req.body.candReg,
-        name:req.body.candName,
-        pass:req.body.candPass,
-        email:req.body.candEmail,
-        mob:req.body.candMob,
-        branch:req.body.candBranch,
-        gender:req.body.candGender,
-        dob:req.body.candDOB
+mongoose.connect('mongodb://0.0.0.0:27019/viit-recruitment', { useUnifiedTopology: true, useNewUrlParser: true }, function (err) {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log('Connected to mongo');
     }
-    Candidate.create(candidateInfo,function(err,candInfo){
-        if(err)
-        {
-            console.log("Error has occured and data was not saved!");
-            res.redirect('/errorSignUp')
-        }
-        else
-        {
-            console.log("Info Added");
-            console.log(candInfo);
-            res.redirect('/verification');  //Verification of details via email/mobile
-        }
-    });
-   
-});
-app.get('/errorSignUp',function(req,res){
-    res.render('errorPage.ejs');
-});
-app.post('/loginData',function(req,res){
-    loginInfo={
-        reg:req.body.regNo,
-        pass:req.body.password
-    };
-    Candidate.find(loginInfo,function(err,response){
-        if(err)
-        {
-            console.log("Error occured in /loginData");
-            res.redirect('/login');
-        }
-        else
-        {
-            console.log('Login Successful');
-            res.redirect('/dashboard');
-        }
-    });
-});
-app.get('/verification',function(req,res){
-    res.render('verify.ejs')
-});
-app.get('/dashboard',function(req,res){
-    res.render('landing.ejs',{name:candidateInfo.name});
 });
 
-app.listen(3000,process.env.ID,function(){
+app.use(body.urlencoded({ extended: true }));
+
+app.post('/signup', function (req, res) {
+    userInfo = {
+        reg: req.body.registrationNo,
+        name: req.body.name,
+        pass: req.body.pass,
+        email: req.body.email,
+        mob: req.body.mob
+    }
+
+    User(userInfo).save().then(data => {
+        console.log("saved");
+        res.send({
+            status: "200",
+            msg: "User Sucessfully Registered."
+        })
+    }).catch(err => {
+        console.log(err);
+        res.send({
+            status: "500",
+            msg: "User Not Registered!"
+        })
+    })
+});
+
+app.post('/login', function (req, res) {
+    loginInfo = {
+        reg: req.body.registrationNo,
+        pass: req.body.pass
+    };
+    Candidate.find(loginInfo, function (err, response) {
+        if (err) {
+            res.send({
+                status: "400",
+                msg: "Email or password wrong."
+            })
+        }
+        else {
+            res.send({
+                status: "200",
+                msg: "Login Successful."
+            })
+        }
+    });
+});
+
+app.post('/getQues', async function (req, res) {
+    email = req.body.email
+    quesType = req.body.quesType
+
+    loginInfo = {
+        reg: req.body.email
+    };
+    isUserExist = await checkIfUserExists(loginInfo)
+    if (!isUserExist)
+        rres.send({
+            status: "400",
+            msg: "Unauthorized Request."
+        })
+
+    query = { questionType: quesType }
+    Questions.find(query).then((query) => {
+        resultArr = []
+        randomQuesArr = getRandomArrFromArr(query, 10)
+        for (i = 0; i < randomQuesArr.length; i++) {
+            resultArr.push({
+                question: randomQuesArr.question[i].question,
+                option1: randomQuesArr.question[i].option1.option,
+                option2: randomQuesArr.question[i].option2.option,
+                option3: randomQuesArr.question[i].option3.option,
+                option4: randomQuesArr.question[i].option4.option,
+                quesId: randomQuesArr.question[i].quesId
+            })
+        }
+        res.send({
+            status: "200",
+            msg: "Request Completed Sucessfully.",
+            questions: resultArr
+        })
+    }).catch((err) => {
+        res.send({
+            status: "500",
+            msg: "Server Error."
+        })
+    })
+});
+
+//TODO complete /submitAns route
+app.post('/submitAns', async function (req, res) {
+    email = req.body.email
+    quesType = req.body.quesType
+    answers = req.body.answers
+
+    loginInfo = {
+        reg: req.body.email
+    };
+    isUserExist = await checkIfUserExists(loginInfo)
+    if (!isUserExist)
+        rres.send({
+            status: "400",
+            msg: "Unauthorized Request."
+        })
+
+});
+
+
+
+
+app.listen(3000, process.env.ID, function () {
     console.log('Server Started');
 });
+
+
+
+
+//TODO move below util functions to new file
+function getRandomArrFromArr(arr, n) {
+    var result = new Array(n),
+        len = arr.length,
+        taken = new Array(len);
+    if (n > len)
+        throw new RangeError("getRandomArrFromArr: more elements taken than available");
+    while (n--) {
+        var x = Math.floor(Math.random() * len);
+        result[n] = arr[x in taken ? taken[x] : x];
+        taken[x] = --len in taken ? taken[len] : len;
+    }
+    return result;
+}
+
+function checkIfRecordExists(query) {
+    User.findOne(query).exec((err, user) => {
+        if (user || err) {
+            return resolve(true);
+        } else {
+            return resolve(false);
+        }
+    })
+}
