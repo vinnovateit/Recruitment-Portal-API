@@ -19,8 +19,8 @@ services:
   mongo-express:
       image: mongo-express
       environment:
-        - ME_CONFIG_BASICAUTH_USERNAME=admin@viit
-        - ME_CONFIG_BASICAUTH_PASSWORD=viit231
+        - ME_CONFIG_BASICAUTH_USERNAME=${me_user}
+        - ME_CONFIG_BASICAUTH_PASSWORD=${me_password}
         - ME_CONFIG_MONGODB_PORT= 27018
       ports:
         - 8089:8081
