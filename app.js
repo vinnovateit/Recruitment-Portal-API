@@ -80,10 +80,10 @@ app.post('/getQues', async function (req, res) {
         for (i = 0; i < randomQuesArr.length; i++) {
             resultArr.push({
                 question: randomQuesArr.question[i].question,
-                option1: randomQuesArr.question[i].option1.option,
-                option2: randomQuesArr.question[i].option2.option,
-                option3: randomQuesArr.question[i].option3.option,
-                option4: randomQuesArr.question[i].option4.option,
+                option1: randomQuesArr.question[i].option1,
+                option2: randomQuesArr.question[i].option2,
+                option3: randomQuesArr.question[i].option3,
+                option4: randomQuesArr.question[i].option4,
                 quesId: randomQuesArr.question[i].quesId
             })
         }
