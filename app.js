@@ -14,6 +14,12 @@ mongoose.connect('mongodb://0.0.0.0:27019/viit-recruitment', { useUnifiedTopolog
 
 app.use(body.urlencoded({ extended: true }));
 
+//Sanity Check
+app.get('/ping', function (req, res) {
+    res.send("pong")
+})
+
+
 app.post('/signup', function (req, res) {
     userInfo = {
         reg: req.body.registrationNo,
