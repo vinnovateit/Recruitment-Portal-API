@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 var questionSchema = new mongoose.Schema({
     questionId: String,
     question: String,

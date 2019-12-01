@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 var userSchema=new mongoose.Schema({
     registrationNo:String,
     name:String,
