@@ -7,9 +7,9 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
 
-# Copy app source code
+# Bundle app source
 COPY . .
 
 #Expose port and start application
 EXPOSE 3002
-CMD [ "nodemon" ]
+CMD [ "node", "app.js" ]
