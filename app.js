@@ -120,8 +120,7 @@ app.post('/submitAns', async function (req, res) {
 
 
 
-
-app.listen(3000, process.env.ID, function () {
+app.listen(3002, process.env.ID, function () {
     console.log('Server Started');
 });
 
