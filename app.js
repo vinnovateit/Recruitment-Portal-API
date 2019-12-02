@@ -74,7 +74,7 @@ app.post('/getQues', async function (req, res) {
     };
     isUserExist = await checkIfUserExists(loginInfo)
     if (!isUserExist)
-        rres.send({
+        res.send({
             status: "400",
             msg: "Unauthorized Request."
         })
@@ -117,7 +117,7 @@ app.post('/submitAns', async function (req, res) {
     };
     isUserExist = await checkIfUserExists(loginInfo)
     if (!isUserExist)
-        rres.send({
+        res.send({
             status: "400",
             msg: "Unauthorized Request."
         })
